@@ -1,7 +1,176 @@
+import React, { useState } from "react";
+import "./index.css";
+import { useTodos } from "@/hooks/useTodos";
+
 const Home: React.FC = () => {
+  const [taskTitle, setTaskTitle] = useState("");
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const { filteredTodos, addTodo, removeTodo, toggleTodo, completeAll, updateTodo } =
+    useTodos();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draftTitle, setDraftTitle] = useState("");
+
+  const handleAddTask = () => {
+    if (taskTitle.trim() === "") {
+      setError(true);
+      setErrorMessage("💡请输入事项内容!");
+      return;
+    }
+    addTodo(taskTitle);
+    setTaskTitle("");
+  };
+
+  const removeTask = (id: string) => {
+    removeTodo(id);
+  };
+
+  const toggleTask = (id: string) => {
+    toggleTodo(id);
+  };
+
+  // 编辑
+  const startEdit = (id: string, title: string) => {
+    setEditingId(id);
+    setDraftTitle(title);
+  };
+  const cancelEdit = () => {
+    setEditingId(null);
+    setDraftTitle("");
+  };
+  const commitEdit = (id: string) => {
+    const t = draftTitle.trim();
+    if (!t) return cancelEdit();
+    updateTodo(id, { title: t });
+    cancelEdit();
+  };
+
   return (
-    <div>
-      <h1>Home Page</h1>
+    <div className="home">
+      <div className="todo-wrapper">
+        <div className="todo-container">
+          <header className="todo-header">
+            <img src="./assets/img/todo.svg" height={52} alt="logo" />
+            <div className="add-task-wrapper">
+              <input
+                className="add-task-input"
+                value={taskTitle}
+                onChange={(e) => {
+                  if (e.target.value !== "") {
+                    setError(false);
+                  }
+                  setTaskTitle(e.target.value);
+                }}
+                type="text"
+                placeholder="新增待办事项..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAddTask();
+                  }
+                }}
+              />
+              <button className="submit" onClick={handleAddTask}>
+                提交
+              </button>
+            </div>
+            {error && <div className="error-message">{errorMessage}</div>}
+          </header>
+          <main className="todo-main">
+            <div className="todo-list-box">
+              <div className="bar header">
+                <input
+                  type="button"
+                  value="全部标记为完成"
+                  className="all-complete-btn"
+                  onClick={() => completeAll()}
+                />
+                <div className="message-box">
+                  <span className="message">
+                    今日事今日毕，勿将今事待明日!.☕
+                  </span>
+                </div>
+              </div>
+              {filteredTodos.length > 0 ? (
+                <ul className="todo-list">
+                  {filteredTodos.map((t) => {
+                    return (
+                      <li
+                        className={`todo-item ${
+                          t.completed ? "todo-item-completed" : ""
+                        }`}
+                        key={t.id}
+                      >
+                        <div
+                          className="todo-btn btn-toggle"
+                          onClick={() => toggleTask(t.id)}
+                        >
+                          {t.completed && (
+                            <img
+                              src="./assets/img/complete.svg"
+                              alt="完成"
+                              width={30}
+                            />
+                          )}
+                        </div>
+                        {editingId === t.id ? (
+                          <input
+                            type="text"
+                            className="todo-item-edit"
+                            value={draftTitle}
+                            onChange={(e) => setDraftTitle(e.target.value)}
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                commitEdit(t.id);
+                              }
+                              if (e.key === "Escape") {
+                                cancelEdit();
+                              }
+                            }}
+                            onBlur={() => commitEdit(t.id)}
+                          />
+                        ) : (
+                          <div
+                            className="todo-item-content"
+                            title="双击编辑"
+                            onDoubleClick={() => startEdit(t.id, t.title)}
+                          >
+                            {t.title}
+                          </div>
+                        )}
+                        <div
+                          className="todo-btn btn-delete"
+                          onClick={() => removeTask(t.id)}
+                        >
+                          <img
+                            src="./assets/img/delete.svg"
+                            alt="删除"
+                            height={16}
+                            width={16}
+                          />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <ul className="empty-tips">
+                  <li>添加你的第一个待办事项！📝</li>
+                  <li>食用方法💡：</li>
+                  <li>✔️ 所有提交操作支持Enter回车键提交</li>
+                  <li>✔️ 拖拽Todo上下移动可排序(仅支持PC)</li>
+                  <li>✔️ 双击上面的标语和 Todo 可进行编辑</li>
+                  <li>✔️ 右侧的小窗口是快捷操作哦</li>
+                  <li>🔒 所有的Todo数据存储在浏览器本地</li>
+                  <li>📝 支持下载和导入，导入追加到当前序列</li>
+                </ul>
+              )}
+              <div className="bar footer">footer</div>
+            </div>
+            <div className="side-bar">side-bar</div>
+          </main>
+        </div>
+      </div>
     </div>
   );
 };
