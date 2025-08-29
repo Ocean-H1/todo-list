@@ -1,6 +1,6 @@
 import type { TodoItem, FilterType } from "@/types";
 import { useLocalStorage } from "./useLocalStorage";
-import { useMemo, useRef } from "react";
+import { useMemo, useState } from "react";
 
 export const STORAGE_KEY = "todo:list:v1";
 
@@ -28,10 +28,7 @@ export function useTodos() {
     setValue: setTodos,
     reset,
   } = useLocalStorage<TodoItem[]>(STORAGE_KEY, []);
-  const filterRef = useRef<FilterType>("all");
-  const setFilter = (f: FilterType) => {
-    filterRef.current = f;
-  };
+  const [filter, setFilter] = useState<FilterType>("all");
 
   const addTodo = (
     title: string,
@@ -114,7 +111,7 @@ export function useTodos() {
     const byGroupThenOrder = (a: TodoItem, b: TodoItem) =>
       Number(a.completed) - Number(b.completed) || a.order - b.order;
 
-    switch (filterRef.current) {
+    switch (filter) {
       case "active":
         return todos.filter(t => !t.completed).slice().sort((a, b) => a.order - b.order);
       case "completed":
@@ -122,7 +119,7 @@ export function useTodos() {
       default:
         return todos.slice().sort(byGroupThenOrder); // 未完成在前、完成在后，同组内按 order
     }
-  }, [todos, filterRef.current]);
+  }, [todos, filter]);
 
   const stats = useMemo(() => {
     const total = todos.length;
@@ -136,7 +133,7 @@ export function useTodos() {
   return {
     todos,
     filteredTodos,
-    filter: filterRef.current as FilterType,
+    filter,
     stats,
     setFilter,
     addTodo,

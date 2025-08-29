@@ -17,6 +17,7 @@ const Home: React.FC = () => {
     setFilter,
     clearCompleted,
     resetAll,
+    filter,
   } = useTodos();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
@@ -71,7 +72,7 @@ const Home: React.FC = () => {
       },
     },
   ];
-  const [activeFilter, setActiveFilter] = useState("all");
+  
 
   const handleAddTask = () => {
     if (taskTitle.trim() === "") {
@@ -252,11 +253,12 @@ const Home: React.FC = () => {
                     return (
                       <li
                         className={`filter-item ${
-                          activeFilter === f.key ? "active" : ""
+                          (["all", "active", "completed"].includes(f.key) && filter === f.key)
+                            ? "active"
+                            : ""
                         }`}
                         onClick={() => {
                           f.action?.();
-                          setActiveFilter(f.key);
                         }}
                         key={f.key}
                       >
