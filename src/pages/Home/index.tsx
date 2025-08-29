@@ -6,10 +6,72 @@ const Home: React.FC = () => {
   const [taskTitle, setTaskTitle] = useState("");
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const { filteredTodos, addTodo, removeTodo, toggleTodo, completeAll, updateTodo } =
-    useTodos();
+  const {
+    filteredTodos,
+    addTodo,
+    removeTodo,
+    toggleTodo,
+    completeAll,
+    updateTodo,
+    stats,
+    setFilter,
+    clearCompleted,
+    resetAll,
+  } = useTodos();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
+  const filterOpts = [
+    {
+      key: "all",
+      label: "全部",
+      action: () => {
+        setFilter("all");
+      },
+    },
+    {
+      key: "active",
+      label: "进行中",
+      action: () => {
+        setFilter("active");
+      },
+    },
+    {
+      key: "completed",
+      label: "已完成",
+      action: () => {
+        setFilter("completed");
+      },
+    },
+    {
+      key: "clearCompleted",
+      label: "清除已完成",
+      action: () => {
+        stats.completed > 0 && clearCompleted();
+      },
+    },
+    {
+      key: "clearAll",
+      label: "清除全部",
+      action: () => {
+        filteredTodos.length > 0 && resetAll();
+      },
+    },
+    {
+      key: "exportData",
+      label: "导出数据",
+      action: () => {
+        console.log("导出数据");
+      },
+    },
+    {
+      key: "importData",
+      label: "导入(txt/json)",
+      action: () => {
+        console.log("导入text/json");
+      },
+    },
+  ];
+  const [activeFilter, setActiveFilter] = useState("all");
 
   const handleAddTask = () => {
     if (taskTitle.trim() === "") {
@@ -165,9 +227,45 @@ const Home: React.FC = () => {
                   <li>📝 支持下载和导入，导入追加到当前序列</li>
                 </ul>
               )}
-              <div className="bar footer">footer</div>
+              <div className="bar footer">
+                {stats.total > 0 ? (
+                  stats.active > 0 ? (
+                    <span>
+                      还有 {stats.active} 个事项待完成, 当前总进度:{" "}
+                      {((stats.completed / stats.total) * 100).toFixed(2)} %
+                    </span>
+                  ) : (
+                    <span>完美收工! ✨</span>
+                  )
+                ) : (
+                  <></>
+                )}
+              </div>
             </div>
-            <div className="side-bar">side-bar</div>
+            <div className="side-bar">
+              <div className="side-bar-switch">
+                <span className="title">折叠👈</span>
+              </div>
+              <ul className="side-bar-list">
+                {filterOpts.length > 0 &&
+                  filterOpts.map((f) => {
+                    return (
+                      <li
+                        className={`filter-item ${
+                          activeFilter === f.key ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          f.action?.();
+                          setActiveFilter(f.key);
+                        }}
+                        key={f.key}
+                      >
+                        {f.label}
+                      </li>
+                    );
+                  })}
+              </ul>
+            </div>
           </main>
         </div>
       </div>
