@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import "./index.css";
 import { useTodos } from "@/hooks/useTodos";
+import { Modal } from "@pixie-ui/core";
+
+import "./index.css";
 
 const Home: React.FC = () => {
   const [taskTitle, setTaskTitle] = useState("");
@@ -47,14 +49,20 @@ const Home: React.FC = () => {
       key: "clearCompleted",
       label: "清除已完成",
       action: () => {
-        stats.completed > 0 && clearCompleted();
+        if (filteredTodos.length <= 0) {
+          return;
+        }
+        setClearCompletedModalOpen(true);
       },
     },
     {
       key: "clearAll",
       label: "清除全部",
       action: () => {
-        filteredTodos.length > 0 && resetAll();
+        if (filteredTodos.length <= 0) {
+          return;
+        }
+        setClearAllModalOpen(true);
       },
     },
     {
@@ -72,7 +80,8 @@ const Home: React.FC = () => {
       },
     },
   ];
-  
+  const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
+  const [clearCompletedModalOpen, setClearCompletedModalOpen] = useState(false);
 
   const handleAddTask = () => {
     if (taskTitle.trim() === "") {
@@ -253,7 +262,8 @@ const Home: React.FC = () => {
                     return (
                       <li
                         className={`filter-item ${
-                          (["all", "active", "completed"].includes(f.key) && filter === f.key)
+                          ["all", "active", "completed"].includes(f.key) &&
+                          filter === f.key
                             ? "active"
                             : ""
                         }`}
@@ -268,6 +278,28 @@ const Home: React.FC = () => {
                   })}
               </ul>
             </div>
+            <Modal
+              title="清空全部事项"
+              open={clearAllModalOpen}
+              onOk={() => {
+                resetAll();
+                setClearAllModalOpen(false);
+              }}
+              onCancel={() => setClearAllModalOpen(false)}
+            >
+              <p>是否确认清空全部事项？</p>
+            </Modal>
+            <Modal
+              title="清除已完成事项"
+              open={clearCompletedModalOpen}
+              onOk={() => {
+                clearCompleted();
+                setClearCompletedModalOpen(false);
+              }}
+              onCancel={() => setClearCompletedModalOpen(false)}
+            >
+              <p>是否确认清除已完成事项?</p>
+            </Modal>
           </main>
         </div>
       </div>
