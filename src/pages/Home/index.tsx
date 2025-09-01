@@ -238,18 +238,24 @@ const Home: React.FC = () => {
                 </ul>
               )}
               <div className="bar footer">
-                {stats.total > 0 ? (
-                  stats.active > 0 ? (
-                    <span>
-                      还有 {stats.active} 个事项待完成, 当前总进度:{" "}
-                      {((stats.completed / stats.total) * 100).toFixed(2)} %
-                    </span>
-                  ) : (
-                    <span>完美收工! ✨</span>
-                  )
-                ) : (
-                  <></>
+                {stats.total > 0 && (
+                  <span className="stats-message">
+                    {stats.active > 0
+                      ? `还有 ${stats.active} 个事项待完成, 当前总进度: ${(
+                          (stats.completed / stats.total) *
+                          100
+                        ).toFixed(2)} %`
+                      : "完美收工! 🎉"}
+                  </span>
                 )}
+                <div
+                  className="progress"
+                  style={{
+                    width: `${((stats.completed / stats.total) * 100).toFixed(
+                      2
+                    )}%`,
+                  }}
+                />
               </div>
             </div>
             <div className="side-bar">
