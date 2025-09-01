@@ -4,7 +4,7 @@ import { Modal } from "@pixie-ui/core";
 
 import "./index.css";
 
-const ToDo: React.FC = () => {
+const Todo: React.FC = () => {
   const [taskTitle, setTaskTitle] = useState("");
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -368,4 +368,4 @@ const ToDo: React.FC = () => {
   );
 };
 
-export default ToDo;
+export default Todo;

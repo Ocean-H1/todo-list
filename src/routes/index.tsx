@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 
-const ToDo = lazy(() => import("../pages/ToDo/index"));
+const Todo = lazy(() => import("../pages/Todo/index"));
 const Login = lazy(() => import("../pages/Login/index"));
 
 const router = createBrowserRouter(
@@ -15,7 +15,7 @@ const router = createBrowserRouter(
           index: true,
           element: (
             <Suspense fallback={<div>Loading Header...</div>}>
-              <ToDo />
+              <Todo />
             </Suspense>
           ),
         },
