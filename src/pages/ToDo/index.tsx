@@ -4,7 +4,7 @@ import { Modal } from "@pixie-ui/core";
 
 import "./index.css";
 
-const Home: React.FC = () => {
+const ToDo: React.FC = () => {
   const [taskTitle, setTaskTitle] = useState("");
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -137,7 +137,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="home">
+    <div className="todo">
       <div className="todo-wrapper">
         <div className="todo-container">
           <header className="todo-header">
@@ -368,4 +368,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default ToDo;

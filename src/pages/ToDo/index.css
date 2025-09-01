@@ -27,7 +27,7 @@
   -webkit-transition: all .35s ease;
 }
 
-.home {
+.todo {
   background-color: var(--body-bg);
   height: 100vh;
 
