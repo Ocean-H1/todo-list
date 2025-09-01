@@ -20,6 +20,7 @@ const Home: React.FC = () => {
     clearCompleted,
     resetAll,
     filter,
+    todos
   } = useTodos();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
@@ -82,6 +83,8 @@ const Home: React.FC = () => {
   ];
   const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
   const [clearCompletedModalOpen, setClearCompletedModalOpen] = useState(false);
+  // 回收站
+  
 
   const handleAddTask = () => {
     if (taskTitle.trim() === "") {
@@ -162,7 +165,7 @@ const Home: React.FC = () => {
                   </span>
                 </div>
               </div>
-              {filteredTodos.length > 0 ? (
+              {todos.length > 0 ? (
                 <ul className="todo-list">
                   {filteredTodos.map((t) => {
                     return (
