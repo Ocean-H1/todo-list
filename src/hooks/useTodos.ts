@@ -29,6 +29,7 @@ export function useTodos() {
     reset,
   } = useLocalStorage<TodoItem[]>(STORAGE_KEY, []);
   const [filter, setFilter] = useState<FilterType>("all");
+  const [trash, setTrash] = useState<TodoItem[]>([]);
 
   const addTodo = (
     title: string,
@@ -56,6 +57,7 @@ export function useTodos() {
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
+    console.log(id, todos.find((t) => t.id === id))
   };
 
   const updateTodo = (
@@ -68,7 +70,30 @@ export function useTodos() {
   };
 
   const removeTodo = (id: string) => {
-    setTodos(todos.filter((t) => t.id !== id));
+    const todoToRemove = todos.find((t) => t.id === id);
+    if (todoToRemove) {
+      setTodos(todos.filter((t) => t.id !== id));
+      setTrash([...trash, todoToRemove]);
+    }
+  };
+
+  // 永久删除任务（从回收站删除）
+  const permanentlyDeleteTodo = (id: string) => {
+    setTrash(trash.filter((t) => t.id !== id));
+  };
+
+  // 从回收站恢复任务
+  const restoreTodo = (id: string) => {
+    const todoToRestore = trash.find((t) => t.id === id);
+    if (todoToRestore) {
+      setTrash(trash.filter((t) => t.id !== id));
+      setTodos([todoToRestore, ...todos]);
+    }
+  };
+
+  // 清空回收站
+  const clearTrash = () => {
+    setTrash([]);
   };
 
   const clearCompleted = () => {
@@ -116,10 +141,12 @@ export function useTodos() {
         return todos.filter(t => !t.completed).slice().sort((a, b) => a.order - b.order);
       case "completed":
         return todos.filter(t => t.completed).slice().sort((a, b) => a.order - b.order);
+      case "trash":
+        return trash.slice().sort((a, b) => a.order - b.order);
       default:
         return todos.slice().sort(byGroupThenOrder); // 未完成在前、完成在后，同组内按 order
     }
-  }, [todos, filter]);
+  }, [todos, filter, trash]);
 
   const stats = useMemo(() => {
     const total = todos.length;
@@ -140,9 +167,13 @@ export function useTodos() {
     toggleTodo,
     updateTodo,
     removeTodo,
+    permanentlyDeleteTodo,
+    restoreTodo,
+    clearTrash,
     clearCompleted,
     completeAll,
     reorderTodos,
     resetAll,
+    trash
   } as const;
 }

@@ -234,6 +234,16 @@
                   transform: translate(-2px, -2px);
                 }
               }
+
+              .btn-restore {
+                border-radius: 10px;
+
+                &:hover {
+                  background-color: var(--completed);
+                  box-shadow: var(--box-shadow);
+                  transform: translate(-2px, -2px);
+                }
+              }
             }
 
             .todo-item.todo-item-completed {
@@ -250,6 +260,17 @@
                 img {
                   transform: translate(4px, -2px);
                 }
+              }
+            }
+
+            .todo-item.trash-item {
+              background-color: var(--bg-deleted);
+              opacity: 0.8;
+
+              .todo-item-content {
+                color: var(--font-color-completed);
+                text-decoration: line-through;
+                cursor: default;
               }
             }
 

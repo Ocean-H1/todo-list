@@ -20,7 +20,9 @@ const Home: React.FC = () => {
     clearCompleted,
     resetAll,
     filter,
-    todos
+    todos,
+    restoreTodo,
+    permanentlyDeleteTodo,
   } = useTodos();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
@@ -44,6 +46,13 @@ const Home: React.FC = () => {
       label: "已完成",
       action: () => {
         setFilter("completed");
+      },
+    },
+    {
+      key: "trash",
+      label: "回收站",
+      action: () => {
+        setFilter("trash");
       },
     },
     {
@@ -83,8 +92,6 @@ const Home: React.FC = () => {
   ];
   const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
   const [clearCompletedModalOpen, setClearCompletedModalOpen] = useState(false);
-  // 回收站
-  
 
   const handleAddTask = () => {
     if (taskTitle.trim() === "") {
@@ -98,6 +105,15 @@ const Home: React.FC = () => {
 
   const removeTask = (id: string) => {
     removeTodo(id);
+  };
+
+  const restoreTask = (id: string) => {
+    restoreTodo(id);
+  };
+
+  // 永久删除任务
+  const permanentlyDeleteTask = (id: string) => {
+    permanentlyDeleteTodo(id);
   };
 
   const toggleTask = (id: string) => {
@@ -172,21 +188,23 @@ const Home: React.FC = () => {
                       <li
                         className={`todo-item ${
                           t.completed ? "todo-item-completed" : ""
-                        }`}
+                        } ${filter === "trash" ? "trash-item" : ""}`}
                         key={t.id}
                       >
-                        <div
-                          className="todo-btn btn-toggle"
-                          onClick={() => toggleTask(t.id)}
-                        >
-                          {t.completed && (
-                            <img
-                              src="./assets/img/complete.svg"
-                              alt="完成"
-                              width={30}
-                            />
-                          )}
-                        </div>
+                        {filter !== "trash" && (
+                          <div
+                            className="todo-btn btn-toggle"
+                            onClick={() => toggleTask(t.id)}
+                          >
+                            {t.completed && (
+                              <img
+                                src="./assets/img/complete.svg"
+                                alt="完成"
+                                width={30}
+                              />
+                            )}
+                          </div>
+                        )}
                         {editingId === t.id ? (
                           <input
                             type="text"
@@ -207,23 +225,56 @@ const Home: React.FC = () => {
                         ) : (
                           <div
                             className="todo-item-content"
-                            title="双击编辑"
-                            onDoubleClick={() => startEdit(t.id, t.title)}
+                            title={filter === "trash" ? "" : "双击编辑"}
+                            onDoubleClick={
+                              filter === "trash"
+                                ? undefined
+                                : () => startEdit(t.id, t.title)
+                            }
                           >
                             {t.title}
                           </div>
                         )}
-                        <div
-                          className="todo-btn btn-delete"
-                          onClick={() => removeTask(t.id)}
-                        >
-                          <img
-                            src="./assets/img/delete.svg"
-                            alt="删除"
-                            height={16}
-                            width={16}
-                          />
-                        </div>
+                        {filter === "trash" ? (
+                          <>
+                            <div
+                              className="todo-btn btn-restore"
+                              onClick={() => restoreTask(t.id)}
+                              title="恢复任务"
+                            >
+                              <img
+                                src="./assets/img/restore.svg"
+                                alt="恢复"
+                                height={16}
+                                width={16}
+                              />
+                            </div>
+                            <div
+                              className="todo-btn btn-delete"
+                              onClick={() => permanentlyDeleteTask(t.id)}
+                              title="永久删除"
+                            >
+                              <img
+                                src="./assets/img/delete.svg"
+                                alt="永久删除"
+                                height={16}
+                                width={16}
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          <div
+                            className="todo-btn btn-delete"
+                            onClick={() => removeTask(t.id)}
+                          >
+                            <img
+                              src="./assets/img/delete.svg"
+                              alt="删除"
+                              height={16}
+                              width={16}
+                            />
+                          </div>
+                        )}
                       </li>
                     );
                   })}
@@ -271,8 +322,9 @@ const Home: React.FC = () => {
                     return (
                       <li
                         className={`filter-item ${
-                          ["all", "active", "completed"].includes(f.key) &&
-                          filter === f.key
+                          ["all", "active", "completed", "trash"].includes(
+                            f.key
+                          ) && filter === f.key
                             ? "active"
                             : ""
                         }`}

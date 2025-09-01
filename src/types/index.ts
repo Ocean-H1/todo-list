@@ -1,4 +1,4 @@
-export type FilterType = 'all' | 'active' | 'completed';
+export type FilterType = 'all' | 'active' | 'completed' | 'trash';
 
 export interface TodoItem {
   id: string;  // 唯一标识
