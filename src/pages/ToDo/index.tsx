@@ -19,7 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-const Todo: React.FC = () => {
+const ToDo: React.FC = () => {
   const [taskTitle, setTaskTitle] = useState("");
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -365,4 +365,4 @@ const Todo: React.FC = () => {
   );
 };
 
-export default Todo;
+export default ToDo;
