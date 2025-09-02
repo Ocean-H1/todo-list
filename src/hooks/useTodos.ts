@@ -57,7 +57,6 @@ export function useTodos() {
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
-    console.log(id, todos.find((t) => t.id === id))
   };
 
   const updateTodo = (

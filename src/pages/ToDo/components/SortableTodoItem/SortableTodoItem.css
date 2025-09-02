@@ -1,0 +1,114 @@
+.todo-item {
+  list-style: none;
+  border: var(--border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16px;
+  width: 100%;
+  height: 64px;
+  background-color: var(--bg-normal);
+  padding: 0 16px;
+  gap: 10px;
+  cursor: grab;
+  user-select: none;
+
+
+  &:hover {
+    box-shadow: none;
+  }
+
+  .todo-item-content {
+    flex: 1;
+    display: block;
+    min-height: 60px;
+    padding: var(--padding);
+    border-radius: var(--border-radius);
+  }
+
+  .todo-item-edit {
+    flex: 1;
+    height: 80%;
+    padding: var(--padding);
+    font-size: 18px;
+    border: none;
+    background-color: #fdfdfd;
+    border-radius: var(--border-radius);
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+
+  .todo-btn {
+    width: 30px;
+    height: 30px;
+    border: var(--border);
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-toggle {
+    border-radius: 20px;
+
+    &:hover {
+      background-color: var(--bg-completed);
+      box-shadow: var(--box-shadow-reverse);
+      transform: translate(2px, -2px);
+    }
+  }
+
+  .btn-delete {
+    border-radius: 10px;
+
+    &:hover {
+      background-color: var(--deleted);
+      box-shadow: var(--box-shadow);
+      transform: translate(-2px, -2px);
+    }
+  }
+
+  .btn-restore {
+    border-radius: 10px;
+
+    &:hover {
+      background-color: var(--completed);
+      box-shadow: var(--box-shadow);
+      transform: translate(-2px, -2px);
+    }
+  }
+}
+
+.todo-item.todo-item-completed {
+  background-color: var(--bg-completed);
+
+  .todo-item-content {
+    text-decoration: line-through;
+    color: var(--font-color-completed);
+  }
+
+  .btn-toggle {
+    background-color: var(--completed);
+
+    img {
+      transform: translate(4px, -2px);
+    }
+  }
+}
+
+.todo-item.trash-item {
+  background-color: var(--bg-deleted);
+  opacity: 0.8;
+
+  .todo-item-content {
+    color: var(--font-color-completed);
+    text-decoration: line-through;
+    cursor: default;
+  }
+}

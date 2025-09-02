@@ -1,8 +1,23 @@
 import React, { useState } from "react";
 import { useTodos } from "@/hooks/useTodos";
-import { Modal } from "@pixie-ui/core";
+import { Modal, Message } from "@pixie-ui/core";
 
 import "./index.css";
+import SortableTodoItem from "./components/SortableTodoItem";
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 const Todo: React.FC = () => {
   const [taskTitle, setTaskTitle] = useState("");
@@ -23,6 +38,7 @@ const Todo: React.FC = () => {
     todos,
     restoreTodo,
     permanentlyDeleteTodo,
+    reorderTodos,
   } = useTodos();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
@@ -136,6 +152,54 @@ const Todo: React.FC = () => {
     cancelEdit();
   };
 
+  // 配置拖拽传感器
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // 拖拽结束处理排序
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id === over?.id) return;
+    // 回收站禁止拖拽
+    if (filter === "trash") {
+      return Message.open({
+        type: "warning",
+        content: "回收站禁止拖拽",
+        className: "pixie-warning-message",
+      });
+    }
+
+    const activeItem = todos.find((t) => t.id === active.id);
+    const overItem = todos.find((t) => t.id === over?.id);
+
+    if (!activeItem || !overItem) return;
+    // 全部视图: 禁止跨分组(进行中/已完成) 拖拽
+    if (filter === "all" && activeItem.completed !== overItem.completed) {
+      return Message.open({
+        type: "warning",
+        content: "禁止跨分组拖拽",
+        className: "pixie-warning-message",
+      });
+    }
+
+    const ordered = todos.slice().sort((a, b) => a.order - b.order);
+    const from = ordered.findIndex((t) => t.id === active.id);
+    const to = ordered.findIndex((t) => t.id === over?.id);
+
+    if (from < 0 || to < 0) return;
+
+    reorderTodos({ from, to });
+  };
+
   return (
     <div className="todo">
       <div className="todo-wrapper">
@@ -182,103 +246,36 @@ const Todo: React.FC = () => {
                 </div>
               </div>
               {todos.length > 0 ? (
-                <ul className="todo-list">
-                  {filteredTodos.map((t) => {
-                    return (
-                      <li
-                        className={`todo-item ${
-                          t.completed ? "todo-item-completed" : ""
-                        } ${filter === "trash" ? "trash-item" : ""}`}
-                        key={t.id}
-                      >
-                        {filter !== "trash" && (
-                          <div
-                            className="todo-btn btn-toggle"
-                            onClick={() => toggleTask(t.id)}
-                          >
-                            {t.completed && (
-                              <img
-                                src="./assets/img/complete.svg"
-                                alt="完成"
-                                width={30}
-                              />
-                            )}
-                          </div>
-                        )}
-                        {editingId === t.id ? (
-                          <input
-                            type="text"
-                            className="todo-item-edit"
-                            value={draftTitle}
-                            onChange={(e) => setDraftTitle(e.target.value)}
-                            autoFocus
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                commitEdit(t.id);
-                              }
-                              if (e.key === "Escape") {
-                                cancelEdit();
-                              }
-                            }}
-                            onBlur={() => commitEdit(t.id)}
-                          />
-                        ) : (
-                          <div
-                            className="todo-item-content"
-                            title={filter === "trash" ? "" : "双击编辑"}
-                            onDoubleClick={
-                              filter === "trash"
-                                ? undefined
-                                : () => startEdit(t.id, t.title)
-                            }
-                          >
-                            {t.title}
-                          </div>
-                        )}
-                        {filter === "trash" ? (
-                          <>
-                            <div
-                              className="todo-btn btn-restore"
-                              onClick={() => restoreTask(t.id)}
-                              title="恢复任务"
-                            >
-                              <img
-                                src="./assets/img/restore.svg"
-                                alt="恢复"
-                                height={16}
-                                width={16}
-                              />
-                            </div>
-                            <div
-                              className="todo-btn btn-delete"
-                              onClick={() => permanentlyDeleteTask(t.id)}
-                              title="永久删除"
-                            >
-                              <img
-                                src="./assets/img/delete.svg"
-                                alt="永久删除"
-                                height={16}
-                                width={16}
-                              />
-                            </div>
-                          </>
-                        ) : (
-                          <div
-                            className="todo-btn btn-delete"
-                            onClick={() => removeTask(t.id)}
-                          >
-                            <img
-                              src="./assets/img/delete.svg"
-                              alt="删除"
-                              height={16}
-                              width={16}
-                            />
-                          </div>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                <DndContext
+                  sensors={sensors}
+                  onDragEnd={handleDragEnd}
+                  collisionDetection={closestCenter}
+                >
+                  <SortableContext
+                    items={filteredTodos.map((t) => t.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <ul className="todo-list">
+                      {filteredTodos.map((t) => (
+                        <SortableTodoItem
+                          todo={t}
+                          filter={filter}
+                          editingId={editingId}
+                          draftTitle={draftTitle}
+                          onToggle={toggleTask}
+                          onRemove={removeTask}
+                          onRestore={restoreTask}
+                          onCancelEdit={cancelEdit}
+                          onCommitEdit={commitEdit}
+                          onStartEdit={startEdit}
+                          onPermanentlyDelete={permanentlyDeleteTask}
+                          onDraftTitleChange={setDraftTitle}
+                          key={t.id}
+                        />
+                      ))}
+                    </ul>
+                  </SortableContext>
+                </DndContext>
               ) : (
                 <ul className="empty-tips">
                   <li>添加你的第一个待办事项！📝</li>
