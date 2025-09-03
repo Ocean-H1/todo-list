@@ -22,6 +22,21 @@ function now() {
   return Date.now();
 }
 
+function normalizeItem(item: Partial<TodoItem>) {
+  const t = typeof item?.title === "string" ? item.title.trim() : "";
+  if (!t) return null;
+  return {
+    id: typeof item?.id === "string" ? item.id : uuid(),
+    title: t,
+    completed: Boolean(item?.completed),
+    createdAt: typeof item?.createdAt === "number" ? item.createdAt : now(),
+    updatedAt: now(),
+    order: typeof item?.order === "number" ? item.order : 0,
+    note: typeof item?.note === "string" ? item.note : undefined,
+    dueAt: typeof item?.dueAt === "number" ? item.dueAt : undefined,
+  };
+}
+
 export function useTodos() {
   const {
     value: todos,
@@ -137,9 +152,15 @@ export function useTodos() {
 
     switch (filter) {
       case "active":
-        return todos.filter(t => !t.completed).slice().sort((a, b) => a.order - b.order);
+        return todos
+          .filter((t) => !t.completed)
+          .slice()
+          .sort((a, b) => a.order - b.order);
       case "completed":
-        return todos.filter(t => t.completed).slice().sort((a, b) => a.order - b.order);
+        return todos
+          .filter((t) => t.completed)
+          .slice()
+          .sort((a, b) => a.order - b.order);
       case "trash":
         return trash.slice().sort((a, b) => a.order - b.order);
       default:
@@ -155,6 +176,17 @@ export function useTodos() {
   }, [todos]);
 
   const resetAll = () => reset([]);
+
+  // 导入数据全量覆盖 (暂时不保留trash)
+  const replaceAll = (nextTodos: Partial<TodoItem>[]) => {
+    // 规范化
+    const normalizedTodos = nextTodos
+      .map(normalizeItem)
+      .filter((x) => !!x)
+      .map((t, idx) => ({ ...t, order: t.order > 0 ? t.order : idx + 1 }));
+
+    setTodos(normalizedTodos.slice().sort((a, b) => a.order - b.order));
+  };
 
   return {
     todos,
@@ -173,6 +205,7 @@ export function useTodos() {
     completeAll,
     reorderTodos,
     resetAll,
-    trash
+    trash,
+    replaceAll,
   } as const;
 }

@@ -18,6 +18,11 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import {
+  buildExportPayload,
+  downloadJSON,
+  parseImportedJSON,
+} from "@/utils/io";
 
 const ToDo: React.FC = () => {
   const [taskTitle, setTaskTitle] = useState("");
@@ -39,6 +44,8 @@ const ToDo: React.FC = () => {
     restoreTodo,
     permanentlyDeleteTodo,
     reorderTodos,
+    trash,
+    replaceAll,
   } = useTodos();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
@@ -83,7 +90,7 @@ const ToDo: React.FC = () => {
     },
     {
       key: "clearAll",
-      label: "清除全部",
+      label: "全部清除",
       action: () => {
         if (filteredTodos.length <= 0) {
           return;
@@ -93,21 +100,22 @@ const ToDo: React.FC = () => {
     },
     {
       key: "exportData",
-      label: "导出数据",
+      label: "导出(json)",
       action: () => {
-        console.log("导出数据");
+        handleExportJSON();
       },
     },
     {
       key: "importData",
-      label: "导入(txt/json)",
+      label: "导入(json)",
       action: () => {
-        console.log("导入text/json");
+        setImportModalOpen(true);
       },
     },
   ];
   const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
   const [clearCompletedModalOpen, setClearCompletedModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   const handleAddTask = () => {
     if (taskTitle.trim() === "") {
@@ -198,6 +206,38 @@ const ToDo: React.FC = () => {
     if (from < 0 || to < 0) return;
 
     reorderTodos({ from, to });
+  };
+
+  const handleExportJSON = () => {
+    try {
+      const payload = buildExportPayload(todos, trash);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      downloadJSON(`todolist-${stamp}.json`, payload);
+      Message.success("导出成功！");
+    } catch (error) {
+      Message.error(`导出失败, JSON 不合法或内容异常！ ${error}`);
+    }
+  };
+
+  const handleImportJSON = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json,application/json";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const { todos: list } = parseImportedJSON(text);
+        replaceAll(list);
+        Message.success("导入成功！");
+      } catch (error) {
+        Message.error(`导入失败, JSON 不合法或内容异常！ ${error}`);
+      } finally {
+        input.remove();
+      }
+    };
+    input.click();
   };
 
   return (
@@ -357,6 +397,17 @@ const ToDo: React.FC = () => {
               onCancel={() => setClearCompletedModalOpen(false)}
             >
               <p>是否确认清除已完成事项?</p>
+            </Modal>
+            <Modal
+              title="导入确认"
+              open={importModalOpen}
+              onOk={() => {
+                handleImportJSON();
+                setImportModalOpen(false);
+              }}
+              onCancel={() => setImportModalOpen(false)}
+            >
+              <p>此操作将会覆盖现有数据, 是否确认导入?</p>
             </Modal>
           </main>
         </div>
