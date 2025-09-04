@@ -4,6 +4,9 @@ import { RouterProvider } from "react-router-dom";
 import router from "./routes";
 import { ThemeProvider } from "@pixie-ui/core";
 
+// 全局样式
+import "./global.css";
+
 const root = createRoot(document.getElementById("root")!);
 
 root.render(

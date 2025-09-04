@@ -48,7 +48,7 @@ const SortableTodoItem: React.FC<SortableTodoItemProps> = (props) => {
       ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
       : undefined,
     transition,
-    opacity: isDragging ? 0 : 1,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (

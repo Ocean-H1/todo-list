@@ -271,20 +271,20 @@ const ToDo: React.FC = () => {
             {error && <div className="error-message">{errorMessage}</div>}
           </header>
           <main className="todo-main">
-            <div className="todo-list-box">
-              <div className="bar header">
-                <input
-                  type="button"
-                  value="全部标记为完成"
-                  className="all-complete-btn"
-                  onClick={() => completeAll()}
-                />
-                <div className="message-box">
-                  <span className="message">
-                    今日事今日毕，勿将今事待明日!.☕
-                  </span>
-                </div>
+            <div className="bar header">
+              <input
+                type="button"
+                value="全部标记为完成"
+                className="all-complete-btn"
+                onClick={() => completeAll()}
+              />
+              <div className="message-box">
+                <span className="message">
+                  今日事今日毕，勿将今事待明日!.☕
+                </span>
               </div>
+            </div>
+            <div className="todo-list-box">
               {todos.length > 0 ? (
                 <DndContext
                   sensors={sensors}
@@ -328,7 +328,7 @@ const ToDo: React.FC = () => {
                   <li>📝 支持下载和导入，导入追加到当前序列</li>
                 </ul>
               )}
-              <div className="bar footer">
+              {/* <div className="bar footer">
                 {stats.total > 0 && (
                   <span className="stats-message">
                     {stats.active > 0
@@ -347,7 +347,7 @@ const ToDo: React.FC = () => {
                     )}%`,
                   }}
                 />
-              </div>
+              </div> */}
             </div>
             <div className="side-bar">
               <div className="side-bar-switch">
@@ -375,6 +375,26 @@ const ToDo: React.FC = () => {
                     );
                   })}
               </ul>
+            </div>
+            <div className="bar footer">
+              {stats.total > 0 && (
+                <div className="stats-message">
+                  {stats.active > 0
+                    ? `还有 ${stats.active} 个事项待完成, 当前总进度: ${(
+                        (stats.completed / stats.total) *
+                        100
+                      ).toFixed(2)} %`
+                    : "完美收工! 🎉"}
+                </div>
+              )}
+              <div
+                className="progress"
+                style={{
+                  width: `${((stats.completed / stats.total) * 100).toFixed(
+                    2
+                  )}%`,
+                }}
+              />
             </div>
             <Modal
               title="清空全部事项"
