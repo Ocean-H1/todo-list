@@ -116,6 +116,7 @@ const ToDo: React.FC = () => {
   const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
   const [clearCompletedModalOpen, setClearCompletedModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleAddTask = () => {
     if (taskTitle.trim() === "") {
@@ -349,9 +350,20 @@ const ToDo: React.FC = () => {
                 />
               </div> */}
             </div>
-            <div className="side-bar">
-              <div className="side-bar-switch">
-                <span className="title">折叠👈</span>
+            <div className={`side-bar ${sidebarCollapsed ? "collapsed" : ""}`}>
+              <div
+                className="side-bar-switch"
+                role="button"
+                tabIndex={0}
+                onClick={() => setSidebarCollapsed((v) => !v)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    setSidebarCollapsed((v) => !v);
+                  }
+                }}
+                title={sidebarCollapsed ? "展开" : "折叠"}
+              >
+                <span className="title">{sidebarCollapsed ? "展开👉" : "折叠👈"}</span>
               </div>
               <ul className="side-bar-list">
                 {filterOpts.length > 0 &&
