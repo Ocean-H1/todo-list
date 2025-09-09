@@ -9,8 +9,16 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true,
+      },
       includeAssets: [
-        'favicon.png',
+        'favicon/favicon.ico',
+        'favicon/favicon-16x16.png',
+        'favicon/favicon-32x32.png',
+        'favicon/apple-touch-icon.png',
+        'favicon/android-chrome-192x192.png',
+        'favicon/android-chrome-512x512.png',
         'assets/img/todo.svg',
         'assets/img/complete.svg',
         'assets/img/delete.svg',
@@ -22,23 +30,23 @@ export default defineConfig({
         clientsClaim: true,
       },
       manifest: {
-        name: 'Todo List Online',
+        name: 'Todo Now',
         short_name: 'TodoList',
         description: '一个支持安装与离线访问的待办清单应用',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '#2a7fb9',
+        background_color: '#b6fbff',
         display: 'standalone',
         lang: 'zh-CN',
         start_url: process.env.NODE_ENV === 'production' ? '/todo-list/' : '/',
         scope: process.env.NODE_ENV === 'production' ? '/todo-list/' : '/',
         icons: [
           {
-            src: '/favicon.png',
+            src: 'favicon/android-chrome-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/favicon.png',
+            src: 'favicon/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
